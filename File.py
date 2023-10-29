@@ -14,7 +14,6 @@ class Connect:
         return self.connection
     def cursor_execute(self,command):
         self.cursor = self.Connected().cursor()
-
         return self.cursor.execute(command)
     def cursor_fetchone(self,command):
         self.cursor = self.Connected().cursor()
@@ -24,7 +23,6 @@ class Connect:
         self.cursor.close()
         self.connection.close()
 class User:
-
     def __init__(self,Name,login1='',password1=''):
         self.log = login1
         self.pas = password1
@@ -35,6 +33,7 @@ class User:
     def Reg(self):
         Con = Connect()
         Con.Connected()
+        
         def LoginSet(self):
             print("Введите логин")
             login = input()
@@ -57,15 +56,14 @@ class User:
         Testing(self)
         cursor = Con.cursor_execute(f"""INSERT INTO auth(login,password) VALUES ('{self.log}','{self.pas}')""")
         Con.close()
+        
     def Login(self):
         Con = Connect()
         Con.Connected()
         name = input("Введите логин \n")
         pas = input("Введите пароль\n")
-        # Con.cursor_execute()
-        passwrd = Con.cursor_fetchone(f"""SELECT password FROM auth WHERE login = '{name}'""")
-        print(passwrd[0])
-        if passwrd[0] == pas:
+        passwrd = Con.cursor_fetchone(f"""SELECT password FROM auth WHERE login = '{name}'""")[0]
+        if passwrd == pas:
             print(f"Вход выполнен,Добро пожаловать {self.Name}")
         else:
             print(False)
