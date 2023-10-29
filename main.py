@@ -1,34 +1,45 @@
 import psycopg2
 from config import host,user,password,db_name
 
+
+class Connect:
+    def __init__(self):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.db_name = db_name
+    def Connected(self):
+        self.connection = psycopg2.connect(host = self.host,user = self.user,password = self.password,database = self.db_name)
+        self.connection.autocommit = True
+        return self.connection
+    def cursor_execute(self,command):
+        self.cursor = self.Connected().cursor()
+        return self.cursor.execute(command)
+    def cursor_fetchone(self,command):
+        self.cursor = self.Connected().cursor()
+        self.cursor.execute(command)
+        return self.cursor.fetchone()
+    def close(self):
+        self.cursor.close()
+        self.connection.close()
 class User:
-    def __init__(self,login1='',password1=''):
+    def __init__(self,Name,login1='',password1=''):
         self.log = login1
         self.pas = password1
+        self.Name = Name
     @property
     def Login(self):
         print(self.log)
-    def Auth(self):
-        connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name
-        )
-        connection.autocommit = True
-        cursor = connection.cursor()
+    def Reg(self):
+        Con = Connect()
+        Con.Connected()
+        
         def LoginSet(self):
             print("Введите логин")
             login = input()
             self.log = login
-            try:
-                cursor.execute(f"""SELECT COUNT(*) from auth WHERE login = '{self.log}'""")
-                a = cursor.fetchone()[0]
-                if a != 0:
-                    exit()
-            except:
-                    raise ValueError('Логин занят')
         LoginSet(self)
+
         def PassSet(self):
             print("Введите пароль")
             passwords = input()
@@ -43,10 +54,19 @@ class User:
                 raise ValueError('Pass shoudl != Login')
                 exit()
         Testing(self)
-        cursor.execute(
-            f"""INSERT INTO auth(login,password) VALUES ('{self.log}','{self.pas}')""")
-        cursor.close()
-        connection.close()
+        cursor = Con.cursor_execute(f"""INSERT INTO auth(login,password) VALUES ('{self.log}','{self.pas}')""")
+        Con.close()
+        
+    def Login(self):
+        Con = Connect()
+        Con.Connected()
+        name = input("Введите логин \n")
+        pas = input("Введите пароль\n")
+        passwrd = Con.cursor_fetchone(f"""SELECT password FROM auth WHERE login = '{name}'""")[0]
+        if passwrd == pas:
+            print(f"Вход выполнен,Добро пожаловать {self.Name}")
+        else:
+            print(False)
+        Con.close()
 
-Vlad = User()
-Vlad.Auth()
+
